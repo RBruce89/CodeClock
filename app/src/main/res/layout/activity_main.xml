@@ -19,15 +19,15 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:padding="8dp"
-        android:text="0:00"
-        android:textSize="72dp"/>
+        android:text="@string/zero"
+        android:textSize="72sp"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="Total"
-            android:textSize="24dp"/>
+            android:text="@string/total"
+            android:textSize="24sp"/>
 
     </LinearLayout>
 
@@ -55,16 +55,16 @@
                 android:layout_height="wrap_content"
                 android:paddingTop="56dp"
                 android:layout_gravity="center"
-                android:text="0:00"
-                android:textSize="48dp"/>
+                android:text="@string/zero"
+                android:textSize="48sp"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="16dp"
                 android:layout_gravity="center"
-                android:text="Research"
-                android:textSize="18dp"/>
+                android:text="@string/research"
+                android:textSize="18sp"/>
 
             <View
                 android:layout_width="match_parent"
@@ -76,8 +76,8 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
                 android:layout_gravity="center"
-                android:text="Start"
-                android:textSize="18dp"/>
+                android:text="@string/start"
+                android:textSize="18sp"/>
 
         </LinearLayout>
 
@@ -99,16 +99,16 @@
                 android:layout_height="wrap_content"
                 android:paddingTop="56dp"
                 android:layout_gravity="center"
-                android:text="0:00"
-                android:textSize="48dp"/>
+                android:text="@string/zero"
+                android:textSize="48sp"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="16dp"
                 android:layout_gravity="center"
-                android:text="Coding"
-                android:textSize="18dp"/>
+                android:text="@string/coding"
+                android:textSize="18sp"/>
 
             <View
                 android:layout_width="match_parent"
@@ -120,8 +120,8 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
                 android:layout_gravity="center"
-                android:text="Start"
-                android:textSize="18dp"/>
+                android:text="@string/start"
+                android:textSize="18sp"/>
 
         </LinearLayout>
 
