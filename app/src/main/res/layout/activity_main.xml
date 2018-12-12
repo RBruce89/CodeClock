@@ -55,10 +55,10 @@
                 android:id="@+id/research_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingTop="56dp"
+                android:paddingTop="60dp"
                 android:layout_gravity="center"
                 android:text="@string/zero"
-                android:textSize="48sp"/>
+                android:textSize="40sp"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -101,10 +101,10 @@
                 android:id="@+id/coding_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingTop="56dp"
+                android:paddingTop="60dp"
                 android:layout_gravity="center"
                 android:text="@string/zero"
-                android:textSize="48sp"/>
+                android:textSize="40sp"/>
 
             <TextView
                 android:layout_width="wrap_content"
