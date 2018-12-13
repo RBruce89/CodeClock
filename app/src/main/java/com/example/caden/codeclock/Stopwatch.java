@@ -15,12 +15,12 @@ public class Stopwatch extends Thread {
     }
 
     public void start() {
-        mStartTime = System.currentTimeMillis();
+        mStartTime = System.nanoTime();
         mPaused = false;
     }
 
     public void pause() {
-        mElapsed = mElapsed + (System.currentTimeMillis() - mStartTime);
+        mElapsed = mElapsed + (System.nanoTime() - mStartTime);
         mPaused = true;
     }
 
@@ -32,8 +32,7 @@ public class Stopwatch extends Thread {
         if (mPaused) {
             return mElapsed;
         } else {
-            mElapsed = mElapsed + (System.currentTimeMillis() - mStartTime);
-            return mElapsed;
+            return mElapsed + (System.nanoTime() - mStartTime);
         }
     }
 }

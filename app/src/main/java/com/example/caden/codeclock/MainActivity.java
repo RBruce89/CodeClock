@@ -9,6 +9,7 @@ import android.widget.Toast;
 import android.widget.TextView;
 import android.os.Handler;
 import java.lang.Thread;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -73,12 +74,20 @@ public class MainActivity extends AppCompatActivity {
     });
 
     public String updateDisplays(){
-        int currentSeconds = (int) codeStopwatch.getElapsed() / 1000;
-        int hour = currentSeconds / 3600;
-        int minute = (currentSeconds - (hour * 3600) / 60);
-        int second = currentSeconds - ((hour * 3600) + (minute * 60));
 
-        return (String.valueOf(String.format("%d:%02d:%02d", hour, minute, second)));
+        long currentSeconds = codeStopwatch.getElapsed(); // / 1000000;
+        /*
+        long hour = currentSeconds / 3600;
+        long minute = (currentSeconds - (hour * 3600) / 60);
+        long second = currentSeconds - ((hour * 3600) + (minute * 60));
+        */
+        long hour = TimeUnit.NANOSECONDS.toHours(currentSeconds);
+        long minute = TimeUnit.NANOSECONDS.toMinutes(currentSeconds) % 60;
+        long second = TimeUnit.NANOSECONDS.toSeconds(currentSeconds) % 60;
+
+
+
+        return (String.valueOf(String.format("%01d:%02d:%02d", hour, minute, second)));
     }
 
 }
