@@ -4,14 +4,11 @@ public class Stopwatch extends Thread {
 
     private long mStartTime;
     private long mElapsed;
-    private boolean mPaused;
+    private boolean mPaused = true;
 
 
 
-    public Stopwatch(long startTime, long elapsed, boolean paused){
-        mStartTime = startTime;
-        mElapsed = elapsed;
-        mPaused = paused;
+    public Stopwatch(){
     }
 
     public void start() {
@@ -20,8 +17,10 @@ public class Stopwatch extends Thread {
     }
 
     public void pause() {
-        mElapsed = mElapsed + (System.nanoTime() - mStartTime);
-        mPaused = true;
+        if (!mPaused) {
+            mElapsed = mElapsed + (System.nanoTime() - mStartTime);
+            mPaused = true;
+        }
     }
 
     public boolean isPaused() {
