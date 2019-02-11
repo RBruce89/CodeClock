@@ -11,6 +11,30 @@ public class Stopwatch extends Thread {
     public Stopwatch(){
     }
 
+    public void setStartTime(long startTime) {
+        mStartTime = startTime;
+    }
+
+    public void setElapsed(long elapsed) {
+        mElapsed = elapsed;
+    }
+
+    public void setPaused(boolean paused) {
+        mPaused = paused;
+    }
+
+    public long getStartTime() {
+        return mStartTime;
+    }
+
+    public long getElapsed() {
+        if (mPaused) {
+            return mElapsed;
+        } else {
+            return mElapsed + (System.nanoTime() - mStartTime);
+        }
+    }
+
     public void start() {
         mStartTime = System.nanoTime();
         mPaused = false;
@@ -27,11 +51,4 @@ public class Stopwatch extends Thread {
         return mPaused;
     }
 
-    public long getElapsed() {
-        if (mPaused) {
-            return mElapsed;
-        } else {
-            return mElapsed + (System.nanoTime() - mStartTime);
-        }
-    }
 }
