@@ -25,24 +25,41 @@ public class MainActivity extends AppCompatActivity {
 
     SharedPreferences prefs;
 
+    String previousCodeTime = "0:00:00";
+    String previousResearchTime = "0:00:00";
+
+
     // Receive message from background thread and use it to update clock displays
     final Handler updateHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             Bundle timeBundle = msg.getData();
+            String activeClockTime = timeBundle.getString("activeClockTime");
 
             switch (timeBundle.getString("activeClock")){
                 case ("code"):
-                    TextView codeTime = findViewById(R.id.coding_time);
-                    codeTime.setText(timeBundle.getString("activeClockTime"));
+                    if (!previousCodeTime.equals(activeClockTime)) {
+                        TextView codeTime = findViewById(R.id.coding_time);
+                        codeTime.setText(activeClockTime);
+
+                        TextView totalTime = findViewById(R.id.total_time);
+                        totalTime.setText(timeBundle.getString("totalClockTime"));
+
+                        previousCodeTime = activeClockTime;
+                    }
                     break;
                 case ("research"):
-                    TextView researchTime = findViewById(R.id.research_time);
-                    researchTime.setText(timeBundle.getString("activeClockTime"));
+                    if (!previousResearchTime.equals(activeClockTime)) {
+                        TextView researchTime = findViewById(R.id.research_time);
+                        researchTime.setText(activeClockTime);
+
+                        TextView totalTime = findViewById(R.id.total_time);
+                        totalTime.setText(timeBundle.getString("totalClockTime"));
+
+                        previousResearchTime = activeClockTime;
+                    }
                     break;
             }
-            TextView totalTime = findViewById(R.id.total_time);
-            totalTime.setText(timeBundle.getString("totalClockTime"));
         }
     };
 
