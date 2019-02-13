@@ -25,7 +25,6 @@ public class MainActivity extends AppCompatActivity {
 
     SharedPreferences prefs;
 
-
     // Receive message from background thread and use it to update clock displays
     final Handler updateHandler = new Handler() {
         @Override
@@ -54,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
 
         final Button codingButton = findViewById(R.id.btn_coding_start);
         final Button researchButton = findViewById(R.id.btn_research_start);
-
 
         prefs = this.getSharedPreferences("mainProfile", MODE_PRIVATE);
         //prefs.edit().clear().commit();
@@ -85,7 +83,6 @@ public class MainActivity extends AppCompatActivity {
 
         codingButton.setOnClickListener(new Button.OnClickListener(){
             public void onClick(View v) {
-
                 if (codeStopwatch.isPaused()) {
                     researchStopwatch.pause();
                     new Thread(updateRunnable).start();
@@ -101,7 +98,6 @@ public class MainActivity extends AppCompatActivity {
 
         researchButton.setOnClickListener(new Button.OnClickListener(){
             public void onClick(View v) {
-
                 if (researchStopwatch.isPaused()) {
                     codeStopwatch.pause();
                     new Thread(updateRunnable).start();
@@ -142,6 +138,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // Save clocks when app stops
+    @Override
+    public void onPause(){
+        super.onPause();
+        saveClocks();
+    }
+
     // Set instructions for background thread to update clock values
         Runnable updateRunnable = new Runnable() {
             @Override
@@ -160,14 +163,10 @@ public class MainActivity extends AppCompatActivity {
                     }
                     timeBundle.putString("activeClockTime", updateActiveStopwatch(activeStopwatch));
                     timeBundle.putString("totalClockTime", updateTotalStopwatch());
-
                     message.setData(timeBundle);
-
-                    saveClocks();
 
                     updateHandler.sendMessage(message);
                 }
-                saveClocks();
             }
         };
 
@@ -212,5 +211,4 @@ public class MainActivity extends AppCompatActivity {
         prefsEditor.putString("mainProfile", json);
         prefsEditor.commit();
     }
-
 }
