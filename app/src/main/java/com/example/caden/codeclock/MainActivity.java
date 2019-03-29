@@ -1,21 +1,26 @@
 package com.example.caden.codeclock;
 
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Message;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.InputType;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.view.View;
-import android.widget.Toast;
+import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.os.Handler;
-
 import com.google.gson.Gson;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.lang.Thread;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
@@ -24,6 +29,13 @@ public class MainActivity extends AppCompatActivity {
     Stopwatch researchStopwatch = new Stopwatch();
 
     SharedPreferences prefs;
+    SharedPreferences projectListPrefs;
+    SharedPreferences selectedProjectPrefs;
+
+    String selectedProjectName;
+    Boolean freshLoad = true;
+
+    ArrayList<String> projectList =  new ArrayList<>();
 
     String previousCodeTime = "0:00:00";
     String previousResearchTime = "0:00:00";
@@ -70,33 +82,28 @@ public class MainActivity extends AppCompatActivity {
 
         final Button codingButton = findViewById(R.id.btn_coding_start);
         final Button researchButton = findViewById(R.id.btn_research_start);
+        final Button addProjectButton = findViewById(R.id.btn_add_project);
+        final Spinner projectsSpinner = findViewById(R.id.projects_spinner);
 
-        prefs = this.getSharedPreferences("mainProfile", MODE_PRIVATE);
-        //prefs.edit().clear().commit();
-        if (prefs.contains("mainProfile")) {
+        selectedProjectPrefs = this.getSharedPreferences("selectedProjectName", MODE_PRIVATE);
+        selectedProjectName = selectedProjectPrefs.getString("selectedProjectName", "");
 
-            Gson gson = new Gson();
-            String json = prefs.getString("mainProfile", "");
-            JSONObject mainProfile = gson.fromJson(json, JSONObject.class);
-
-            try {
-                String codeTimeString = mainProfile.get("codeTime").toString();
-                String codeStateString = mainProfile.get("codeState").toString();
-                String codeStartTimeString = mainProfile.get("codeStartTime").toString();
-                String researchTimeString = mainProfile.get("researchTime").toString();
-                String researchStateString = mainProfile.get("researchState").toString();
-                String researchStartTimeString = mainProfile.get("researchStartTime").toString();
-
-                codeStopwatch.setElapsed(Long.parseLong(codeTimeString));
-                codeStopwatch.setPaused(Boolean.parseBoolean(codeStateString));
-                codeStopwatch.setStartTime(Long.parseLong(codeStartTimeString));
-                researchStopwatch.setElapsed(Long.parseLong(researchTimeString));
-                researchStopwatch.setPaused(Boolean.parseBoolean(researchStateString));
-                researchStopwatch.setStartTime(Long.parseLong(researchStartTimeString));
-            } catch (JSONException e) {
-                System.out.println("json exception on startup catch");
-            }
+        projectListPrefs = this.getSharedPreferences("projectList", MODE_PRIVATE);
+        if (!projectListPrefs.contains("projectList"))
+        {
+            addProject();
         }
+        HashSet<String> defaultSet = new HashSet<>();
+        projectList = new ArrayList<>(projectListPrefs.getStringSet("projectList", defaultSet));
+
+        ArrayAdapter<String> projectsArrayAdapter = new ArrayAdapter<>(
+                this, android.R.layout.simple_spinner_item, projectList);
+        projectsArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        projectsSpinner.setAdapter(projectsArrayAdapter);
+
+        projectsSpinner.setSelection(projectsArrayAdapter.getPosition(selectedProjectName));
+
+        loadClocks(selectedProjectName);
 
         codingButton.setOnClickListener(new Button.OnClickListener(){
             public void onClick(View v) {
@@ -128,6 +135,74 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
+
+        addProjectButton.setOnClickListener(new Button.OnClickListener(){
+            public void onClick(View v) {
+                addProject();
+            }
+        });
+
+        projectsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                if (!freshLoad) {
+                    codeStopwatch.pause();
+                    researchStopwatch.pause();
+                    codingButton.setText(R.string.start);
+                    researchButton.setText(R.string.start);
+                }
+                freshLoad = false;
+
+                saveClocks(selectedProjectName);
+
+                selectedProjectName = projectsSpinner.getSelectedItem().toString();
+                SharedPreferences.Editor selectedProjectPrefsEditor = selectedProjectPrefs.edit();
+                selectedProjectPrefsEditor.putString("selectedProjectName", selectedProjectName);
+                selectedProjectPrefsEditor.commit();
+                loadClocks(selectedProjectName);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+            }
+        });
+
+    }
+
+    //Get variable states for the relevant stopwatches and display the times
+    public void loadClocks(String projectName) {
+        prefs = this.getSharedPreferences(projectName, MODE_PRIVATE);
+        if (prefs.contains(projectName)) {
+
+            Gson gson = new Gson();
+            String json = prefs.getString(projectName, "");
+            JSONObject mainProfile = gson.fromJson(json, JSONObject.class);
+
+            try {
+                String codeTimeString = mainProfile.get("codeTime").toString();
+                String codeStateString = mainProfile.get("codeState").toString();
+                String codeStartTimeString = mainProfile.get("codeStartTime").toString();
+                String researchTimeString = mainProfile.get("researchTime").toString();
+                String researchStateString = mainProfile.get("researchState").toString();
+                String researchStartTimeString = mainProfile.get("researchStartTime").toString();
+
+                codeStopwatch.setElapsed(Long.parseLong(codeTimeString));
+                codeStopwatch.setPaused(Boolean.parseBoolean(codeStateString));
+                codeStopwatch.setStartTime(Long.parseLong(codeStartTimeString));
+                researchStopwatch.setElapsed(Long.parseLong(researchTimeString));
+                researchStopwatch.setPaused(Boolean.parseBoolean(researchStateString));
+                researchStopwatch.setStartTime(Long.parseLong(researchStartTimeString));
+
+                TextView codeTime = findViewById(R.id.coding_time);
+                codeTime.setText(updateActiveStopwatch(codeStopwatch));
+                TextView researchTime = findViewById(R.id.research_time);
+                researchTime.setText(updateActiveStopwatch(researchStopwatch));
+                TextView totalTime = findViewById(R.id.total_time);
+                totalTime.setText(updateTotalStopwatch());
+            } catch (JSONException e) {
+                System.out.println("json exception on loadClocks catch");
+            }
+        }
     }
 
     // Update display to last status
@@ -159,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onPause(){
         super.onPause();
-        saveClocks();
+        saveClocks(selectedProjectName);
     }
 
     // Set instructions for background thread to update clock values
@@ -197,7 +272,7 @@ public class MainActivity extends AppCompatActivity {
         return (String.valueOf(String.format("%01d:%02d:%02d", hour, minute, second)));
     }
 
-    // update total time display value
+    // Update total time display value
     public String updateTotalStopwatch(){
         long currentNanoSeconds = codeStopwatch.getElapsed() + researchStopwatch.getElapsed();
         long hour = TimeUnit.NANOSECONDS.toHours(currentNanoSeconds);
@@ -208,15 +283,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Save clock variables so they persist through app closes
-    public void saveClocks(){
-        JSONObject mainProfile = new JSONObject();
+    public void saveClocks(String projectName){
+        JSONObject clockJSONObject = new JSONObject();
         try {
-            mainProfile.put("codeTime", String.format("%01d", codeStopwatch.getElapsed()));
-            mainProfile.put("codeState", String.valueOf(codeStopwatch.isPaused()));
-            mainProfile.put("codeStartTime", String.format("%01d", codeStopwatch.getStartTime()));
-            mainProfile.put("researchTime", String.format("%01d", researchStopwatch.getElapsed()));
-            mainProfile.put("researchState", String.valueOf(researchStopwatch.isPaused()));
-            mainProfile.put("researchStartTime", String.format("%01d", researchStopwatch.getStartTime()));
+            clockJSONObject.put("codeTime", String.format("%01d", codeStopwatch.getElapsed()));
+            clockJSONObject.put("codeState", String.valueOf(codeStopwatch.isPaused()));
+            clockJSONObject.put("codeStartTime", String.format("%01d", codeStopwatch.getStartTime()));
+            clockJSONObject.put("researchTime", String.format("%01d", researchStopwatch.getElapsed()));
+            clockJSONObject.put("researchState", String.valueOf(researchStopwatch.isPaused()));
+            clockJSONObject.put("researchStartTime", String.format("%01d", researchStopwatch.getStartTime()));
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -224,8 +299,68 @@ public class MainActivity extends AppCompatActivity {
 
         SharedPreferences.Editor prefsEditor = prefs.edit();
         Gson gson = new Gson();
-        String json = gson.toJson(mainProfile);
-        prefsEditor.putString("mainProfile", json);
+        String json = gson.toJson(clockJSONObject);
+        prefsEditor.putString(projectName, json);
         prefsEditor.commit();
+    }
+
+    //Open pop-up dialog to add a new project
+    public void addProject(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("New Project Name:");
+
+        final EditText projectNameInput = new EditText(this);
+
+        projectNameInput.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+        builder.setView(projectNameInput);
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String projectName = projectNameInput.getText().toString();
+                projectList.add(projectName);
+
+                HashSet<String> projectListSet = new HashSet<>(projectList);
+
+                SharedPreferences.Editor listPrefsEditor = projectListPrefs.edit();
+                listPrefsEditor.putStringSet("projectList", projectListSet);
+                listPrefsEditor.commit();
+
+                codeStopwatch.pause();
+                researchStopwatch.pause();
+                final Button codingButton = findViewById(R.id.btn_coding_start);
+                final Button researchButton = findViewById(R.id.btn_research_start);
+                codingButton.setText(R.string.start);
+                researchButton.setText(R.string.start);
+
+                if (!selectedProjectName.equals("")){
+                    saveClocks(selectedProjectName);
+                }
+                codeStopwatch.reset();
+                researchStopwatch.reset();
+
+                saveClocks(projectName);
+                loadClocks(projectName);
+
+                Spinner projectsSpinner = findViewById(R.id.projects_spinner);
+                ArrayAdapter<String> projectsArrayAdapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, projectList);
+                projectsArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                projectsSpinner.setAdapter(projectsArrayAdapter);
+
+                projectsSpinner.setSelection(projectsArrayAdapter.getPosition(projectName));
+
+                selectedProjectName = projectName;
+                SharedPreferences.Editor selectedProjectPrefsEditor = selectedProjectPrefs.edit();
+                selectedProjectPrefsEditor.putString("selectedProjectName", selectedProjectName);
+                selectedProjectPrefsEditor.commit();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        builder.show();
     }
 }

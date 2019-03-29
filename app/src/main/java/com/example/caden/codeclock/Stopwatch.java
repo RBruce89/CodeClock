@@ -51,4 +51,10 @@ public class Stopwatch extends Thread {
         return mPaused;
     }
 
+    public void reset(){
+        mPaused = true;
+        mElapsed = 0;
+        mStartTime = 0;
+    }
+
 }
