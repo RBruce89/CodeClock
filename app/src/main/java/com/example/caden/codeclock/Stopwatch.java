@@ -6,8 +6,6 @@ public class Stopwatch extends Thread {
     private long mElapsed;
     private boolean mPaused = true;
 
-
-
     public Stopwatch(){
     }
 
@@ -35,6 +33,10 @@ public class Stopwatch extends Thread {
         }
     }
 
+    public boolean isPaused() {
+        return mPaused;
+    }
+
     public void start() {
         mStartTime = System.nanoTime();
         mPaused = false;
@@ -45,10 +47,6 @@ public class Stopwatch extends Thread {
             mElapsed = mElapsed + (System.nanoTime() - mStartTime);
             mPaused = true;
         }
-    }
-
-    public boolean isPaused() {
-        return mPaused;
     }
 
     public void reset(){
