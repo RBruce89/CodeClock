@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
         final Spinner projectsSpinner = findViewById(R.id.projects_spinner);
 
         manageSpinner.loadSpinner();
-        manageClocks.loadClocks(manageSpinner.selectedProjectName);
+        manageClocks.loadClocks(manageSpinner.getSelectedProjectName());
 
         codingButton.setOnClickListener(new Button.OnClickListener(){
             public void onClick(View v) {
@@ -110,6 +110,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onPause(){
         super.onPause();
-        manageClocks.saveClocks(manageSpinner.selectedProjectName);
+        manageClocks.saveClocks(manageSpinner.getSelectedProjectName());
     }
 }

@@ -28,6 +28,10 @@ public class ManageSpinner {
 
     private Boolean freshLoad = true;
 
+    public String getSelectedProjectName(){
+        return selectedProjectName;
+    }
+
     //Define OnItemSelected behaviour
     public void projectSpinnerItemSelected(){
         if (!freshLoad) {
